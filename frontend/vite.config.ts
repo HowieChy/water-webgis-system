@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import path from "path";
 
 // Vite 配置文件
 export default defineConfig({
@@ -8,6 +9,11 @@ export default defineConfig({
     react(), // React 插件
     tailwindcss(), // Tailwind CSS v4 Vite 插件
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   server: {
     // 开发服务器代理配置
     proxy: {

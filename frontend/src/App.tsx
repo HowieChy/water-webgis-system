@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
+import CommonLayout from "./layouts/common";
 import Login from "./pages/Login";
 import { useUserStore } from "./store/userStore";
 
@@ -22,30 +22,39 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
+
+dayjs.locale("zh-cn");
+
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
+    <ConfigProvider locale={zhCN}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <MainLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<MapPage />} />
-          <Route path="/monitor/history" element={<HistoryPage />} />
-          <Route path="/resource/facility" element={<FacilityPage />} />
-          <Route path="/resource/category" element={<CategoryPage />} />
-          <Route path="/system/user" element={<UserPage />} />
-          <Route path="/system/log" element={<LogPage />} />
-          <Route path="*" element={<div>404 Not Found</div>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <CommonLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<MapPage />} />
+            <Route path="/monitor/history" element={<HistoryPage />} />
+            <Route path="/resource/facility" element={<FacilityPage />} />
+            <Route path="/resource/category" element={<CategoryPage />} />
+            <Route path="/system/user" element={<UserPage />} />
+            <Route path="/system/log" element={<LogPage />} />
+            <Route path="*" element={<div>404 Not Found</div>} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ConfigProvider>
   );
 };
 

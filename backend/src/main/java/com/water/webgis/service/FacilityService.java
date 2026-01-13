@@ -23,7 +23,9 @@ public class FacilityService {
 
     // Category Methods
     public List<FacilityCategory> getAllCategories() {
-        return categoryMapper.selectList(null);
+        return categoryMapper
+                .selectList(new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<FacilityCategory>()
+                        .orderByAsc("sort_order"));
     }
 
     public Result<String> saveCategory(FacilityCategory category) {

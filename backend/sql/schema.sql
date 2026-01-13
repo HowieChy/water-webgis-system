@@ -5,7 +5,7 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE TABLE IF NOT EXISTS facility_category (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    icon_url VARCHAR(255),
+    alias VARCHAR(50),
     sort_order INT DEFAULT 0
 );
 

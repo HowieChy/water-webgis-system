@@ -99,7 +99,9 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
 
         // 允许的源地址(前端开发服务器地址)
-        config.addAllowedOrigin("http://localhost:5599");
+        config.addAllowedOriginPattern("http://localhost:*");
+        config.addAllowedOriginPattern("http://192.168.*.*:*");
+        config.addAllowedOriginPattern("http://127.0.0.1:*");
 
         // 允许所有请求头
         config.addAllowedHeader("*");

@@ -2,9 +2,15 @@ import axios from "axios";
 import { message } from "antd";
 import { useUserStore } from "../store/userStore";
 
+// 动态获取后端地址,使用当前访问的域名/IP
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  return `http://${hostname}:8080`;
+};
+
 // 创建 axios 实例,配置基础 URL 和超时时间
 const request = axios.create({
-  baseURL: "http://localhost:8080", // 后端服务器地址
+  baseURL: getBaseURL(), // 后端服务器地址(动态)
   timeout: 10000, // 请求超时时间 10 秒
   withCredentials: true, // 允许携带 Cookie,用于 Session 验证码功能
 });

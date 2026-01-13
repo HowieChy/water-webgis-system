@@ -11,15 +11,21 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@radix-ui/react-scroll-area": "^1.2.10",
     "antd": "^6.1.4",
     "axios": "^1.13.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.19",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.5",
+    "lucide-react": "^0.562.0",
     "ol": "^10.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.12.0",
+    "tailwind-merge": "^3.4.0",
+    "vite-plugin-svgr": "^4.5.0",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

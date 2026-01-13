@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  Table,
-  Button,
-  Form,
-  Input,
-  Modal,
-  message,
-  InputNumber,
-} from "antd";
+import { Card, Table, Button, Form, Input, Modal, message } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import request from "../utils/request";
 
@@ -70,7 +61,7 @@ const CategoryPage: React.FC = () => {
   const columns = [
     { title: "ID", dataIndex: "id" },
     { title: "名称", dataIndex: "name" },
-    { title: "图标", dataIndex: "iconUrl" },
+    { title: "中文别名", dataIndex: "alias" },
     { title: "排序", dataIndex: "sortOrder" },
     {
       title: "操作",
@@ -113,11 +104,8 @@ const CategoryPage: React.FC = () => {
           <Form.Item name="name" label="分类名称" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="iconUrl" label="图标URL">
+          <Form.Item name="alias" label="中文别名" rules={[{ required: true }]}>
             <Input />
-          </Form.Item>
-          <Form.Item name="sortOrder" label="排序">
-            <InputNumber style={{ width: "100%" }} />
           </Form.Item>
         </Form>
       </Modal>

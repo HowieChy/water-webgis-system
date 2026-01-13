@@ -16,7 +16,7 @@ public class FacilityCategory implements Serializable {
 
     private String name;
 
-    private String iconUrl;
+    private String alias;
 
     private Integer sortOrder;
 }

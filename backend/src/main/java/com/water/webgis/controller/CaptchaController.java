@@ -73,20 +73,26 @@ public class CaptchaController {
             // 不显示边框
             properties.setProperty("kaptcha.border", "no");
 
+            // 验证码字符集:只使用数字0-9
+            properties.setProperty("kaptcha.textproducer.char.string", "0123456789");
+
+            // 验证码长度:4位
+            properties.setProperty("kaptcha.textproducer.char.length", "4");
+
             // 验证码文字颜色为黑色
             properties.setProperty("kaptcha.textproducer.font.color", "black");
 
             // 字符间距为 5 像素
             properties.setProperty("kaptcha.textproducer.char.space", "5");
 
-            // 图片宽度 130 像素
-            properties.setProperty("kaptcha.image.width", "130");
+            // 图片宽度 100 像素
+            properties.setProperty("kaptcha.image.width", "100");
 
             // 图片高度 40 像素
             properties.setProperty("kaptcha.image.height", "40");
 
-            // 字体大小 30
-            properties.setProperty("kaptcha.textproducer.font.size", "30");
+            // 字体大小 32
+            properties.setProperty("kaptcha.textproducer.font.size", "32");
 
             // 创建 Kaptcha 配置对象
             com.google.code.kaptcha.util.Config config = new com.google.code.kaptcha.util.Config(properties);
