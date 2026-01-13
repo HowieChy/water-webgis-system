@@ -1,6 +1,5 @@
 package com.water.webgis.service;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.water.webgis.common.Result;
 import com.water.webgis.entity.FacilityCategory;
 import com.water.webgis.entity.WaterFacility;
@@ -26,7 +25,7 @@ public class FacilityService {
     public List<FacilityCategory> getAllCategories() {
         return categoryMapper.selectList(null);
     }
-    
+
     public Result<String> saveCategory(FacilityCategory category) {
         if (category.getId() == null) {
             categoryMapper.insert(category);
@@ -40,7 +39,7 @@ public class FacilityService {
     public List<WaterFacility> getAllFacilities() {
         return waterFacilityMapper.selectAllWithGeoJSON();
     }
-    
+
     @Transactional
     public Result<String> saveFacility(WaterFacility facility) {
         if (facility.getId() == null) {
@@ -50,11 +49,11 @@ public class FacilityService {
             // Update logic (simplified, might need custom update for geom)
             // For now, let's assume update involves primarily attributes or standard fields
             // If geom updates, we need similar ST_GeomFromGeoJSON handling
-             waterFacilityMapper.updateById(facility);
+            waterFacilityMapper.updateById(facility);
         }
         return Result.success("Saved facility");
     }
-    
+
     public Result<String> deleteFacility(Long id) {
         waterFacilityMapper.deleteById(id);
         return Result.success("Deleted");

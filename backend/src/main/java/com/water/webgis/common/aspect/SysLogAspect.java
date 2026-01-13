@@ -56,32 +56,35 @@ public class SysLogAspect {
         String methodName = signature.getName();
         sysLog.setMethod(className + "." + methodName + "()");
 
-        // Request params (optional, can be large) 
-        // Object[] args = joinPoint.getArgs(); 
+        // Request params (optional, can be large)
+        // Object[] args = joinPoint.getArgs();
         // sysLog.setParams(Arrays.toString(args));
 
         // Get Request info
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
         if (request != null) {
             sysLog.setIpAddr(request.getRemoteAddr());
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
                 try {
+                    // Verify and get details
                     String username = jwtUtils.getUsernameFromToken(token);
-                     // Ideally we get userId here. For now we might look up or use username if field changed. 
-                     // Entity has userId (Long). We need to fetch userId from token claims or DB.
-                     // Assuming claims have "id".
-                     Object idObj = jwtUtils.getClaimsFromToken(token).get("id");
-                     if(idObj != null) {
-                         sysLog.setUserId(Long.valueOf(idObj.toString()));
-                     }
+                    // Ideally we get userId here. For now we might look up or use username if field
+                    // changed.
+                    // Entity has userId (Long). We need to fetch userId from token claims or DB.
+                    // Assuming claims have "id".
+                    Object idObj = jwtUtils.getClaimsFromToken(token).get("id");
+                    if (idObj != null) {
+                        sysLog.setUserId(Long.valueOf(idObj.toString()));
+                    }
                 } catch (Exception e) {
                     // ignore
                 }
             }
         }
-        
+
         sysLog.setCreateTime(new Date());
         sysLogMapper.insert(sysLog);
     }

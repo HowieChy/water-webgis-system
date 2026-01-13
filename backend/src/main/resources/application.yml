@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/smart_water_db
     username: postgres
-    password: password # Default password, user should change if needed
+    password: root # Default password, user should change if needed
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
