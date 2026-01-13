@@ -6,5 +6,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Log {
-    String value() default ""; // Operation description
+    String value() default "";
 }

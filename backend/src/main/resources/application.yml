@@ -3,17 +3,24 @@ server:
 
 spring:
   application:
-    name: water-webgis-system
+    name: water-webgis-backend
   datasource:
+    driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/smart_water_db
     username: postgres
-    password: password
-    driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
+    password: password # Default password, user should change if needed
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.water.webgis.entity
   configuration:
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT Configuration
+jwt:
+  secret: waterWebgisSecureKey2026waterWebgisSecureKey2026 # Must be at least 256 bits
+  expiration: 86400000 # 24 hours

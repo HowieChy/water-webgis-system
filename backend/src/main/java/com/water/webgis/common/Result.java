@@ -26,4 +26,8 @@ public class Result<T> {
         result.setMessage(message);
         return result;
     }
+    
+    public static <T> Result<T> error(String message) {
+        return error(500, message);
+    }
 }
