@@ -68,23 +68,23 @@ const HistoryPage: React.FC = () => {
     const flowRates = data.map((item) => item.flowRate);
 
     setOption({
-      title: { text: "Monitoring Trend" },
+      title: { text: "监测趋势图" },
       tooltip: { trigger: "axis" },
-      legend: { data: ["Water Level (m)", "Flow Rate (m³/s)"] },
+      legend: { data: ["水位 (m)", "流量 (m³/s)"] },
       xAxis: { type: "category", data: times },
       yAxis: [
-        { type: "value", name: "Level (m)" },
-        { type: "value", name: "Flow (m³/s)" },
+        { type: "value", name: "水位 (m)" },
+        { type: "value", name: "流量 (m³/s)" },
       ],
       series: [
         {
-          name: "Water Level (m)",
+          name: "水位 (m)",
           type: "line",
           data: waterLevels,
           yAxisIndex: 0,
         },
         {
-          name: "Flow Rate (m³/s)",
+          name: "流量 (m³/s)",
           type: "line",
           data: flowRates,
           yAxisIndex: 1,
@@ -95,25 +95,25 @@ const HistoryPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Time",
+      title: "采集时间",
       dataIndex: "collectTime",
       render: (t: string) => dayjs(t).format("YYYY-MM-DD HH:mm:ss"),
     },
-    { title: "Water Level (m)", dataIndex: "waterLevel" },
-    { title: "Flow Rate (m³/s)", dataIndex: "flowRate" },
+    { title: "水位 (m)", dataIndex: "waterLevel" },
+    { title: "流量 (m³/s)", dataIndex: "flowRate" },
     {
-      title: "Switch Status",
+      title: "开关状态",
       dataIndex: "switchStatus",
-      render: (v: number) => (v === 1 ? "Open" : "Closed"),
+      render: (v: number) => (v === 1 ? "开启" : "关闭"),
     },
   ];
 
   return (
     <div style={{ padding: 24 }}>
-      <Card title="Historical Data Query">
+      <Card title="历史数据查询">
         <Form layout="inline" form={form} onFinish={handleSearch}>
-          <Form.Item name="facilityId" label="Facility">
-            <Select style={{ width: 200 }} placeholder="Select Facility">
+          <Form.Item name="facilityId" label="选择设施">
+            <Select style={{ width: 200 }} placeholder="请选择设施">
               {facilities.map((f) => (
                 <Select.Option key={f.id} value={f.id}>
                   {f.name}
@@ -121,12 +121,12 @@ const HistoryPage: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="timeRange" label="Time Range">
+          <Form.Item name="timeRange" label="时间范围">
             <RangePicker showTime />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>
-              Search
+              查询
             </Button>
           </Form.Item>
         </Form>

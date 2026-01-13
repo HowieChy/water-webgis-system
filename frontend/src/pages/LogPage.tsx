@@ -52,30 +52,30 @@ const LogPage: React.FC = () => {
 
   const columns = [
     { title: "ID", dataIndex: "id" },
-    { title: "User ID", dataIndex: "userId" },
-    { title: "Operation", dataIndex: "operation" },
-    { title: "Method", dataIndex: "method", ellipsis: true },
-    { title: "IP Address", dataIndex: "ipAddr" },
+    { title: "用户ID", dataIndex: "userId" },
+    { title: "操作内容", dataIndex: "operation" },
+    { title: "请求方法", dataIndex: "method", ellipsis: true },
+    { title: "IP地址", dataIndex: "ipAddr" },
     {
-      title: "Time",
+      title: "操作时间",
       dataIndex: "createTime",
       render: (t: string) => dayjs(t).format("YYYY-MM-DD HH:mm:ss"),
     },
   ];
 
   return (
-    <Card title="System Log Audit">
+    <Card title="系统日志审计">
       <Form
         layout="inline"
         onFinish={handleSearch}
         style={{ marginBottom: 16 }}
       >
         <Form.Item name="operation">
-          <Input prefix={<SearchOutlined />} placeholder="Search operation" />
+          <Input prefix={<SearchOutlined />} placeholder="搜索操作内容" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Search
+            查询
           </Button>
         </Form.Item>
       </Form>

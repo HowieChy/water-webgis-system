@@ -45,47 +45,41 @@ const UserPage: React.FC = () => {
 
   const columns: any[] = [
     { title: "ID", dataIndex: "id" },
-    { title: "Username", dataIndex: "username" },
-    { title: "Real Name", dataIndex: "realName" },
+    { title: "用户名", dataIndex: "username" },
+    { title: "真实姓名", dataIndex: "realName" },
     {
-      title: "Role",
+      title: "角色",
       dataIndex: "roleType",
       render: (role: string) => (
         <Tag color={role === "ADMIN" ? "blue" : "green"}>{role}</Tag>
       ),
     },
-    { title: "Contact", dataIndex: "contact" },
+    { title: "联系方式", dataIndex: "contact" },
     {
-      title: "Status",
+      title: "状态",
       dataIndex: "status",
       render: (val: number) =>
         val === 1 ? (
-          <Tag color="success">Enabled</Tag>
+          <Tag color="success">启用</Tag>
         ) : (
-          <Tag color="error">Disabled</Tag>
+          <Tag color="error">禁用</Tag>
         ),
     },
   ];
 
   return (
-    <Card
-      title="User Management"
-      extra={<Button type="primary">Add User</Button>}
-    >
+    <Card title="用户管理" extra={<Button type="primary">新增用户</Button>}>
       <Form
         layout="inline"
         onFinish={handleSearch}
         style={{ marginBottom: 16 }}
       >
         <Form.Item name="keyword">
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder="Search username/name"
-          />
+          <Input prefix={<SearchOutlined />} placeholder="搜索用户名/姓名" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
-            Search
+            查询
           </Button>
         </Form.Item>
       </Form>

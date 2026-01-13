@@ -62,21 +62,21 @@ const FacilityPage: React.FC = () => {
   };
 
   const columns = [
-    { title: "Name", dataIndex: "name" },
-    { title: "Code", dataIndex: "code" },
-    { title: "Address", dataIndex: "address" },
-    { title: "Status", dataIndex: "status" },
+    { title: "名称", dataIndex: "name" },
+    { title: "编码", dataIndex: "code" },
+    { title: "地址", dataIndex: "address" },
+    { title: "状态", dataIndex: "status" },
     {
-      title: "Type",
+      title: "类型",
       dataIndex: "categoryId",
       render: (id: number) => categories.find((c) => c.id === id)?.name || id,
     },
     {
-      title: "Action",
+      title: "操作",
       key: "action",
       render: (_: any, record: any) => (
         <Button type="link" onClick={() => handleEdit(record)}>
-          Edit
+          编辑
         </Button>
       ),
     },
@@ -84,10 +84,10 @@ const FacilityPage: React.FC = () => {
 
   return (
     <Card
-      title="Facility Management"
+      title="设施管理"
       extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Add Facility
+          新增设施
         </Button>
       }
     >
@@ -99,21 +99,21 @@ const FacilityPage: React.FC = () => {
       />
 
       <Modal
-        title={editingId ? "Edit Facility" : "Add Facility"}
+        title={editingId ? "编辑设施" : "新增设施"}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={() => setIsModalOpen(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label="名称" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="code" label="Code" rules={[{ required: true }]}>
+          <Form.Item name="code" label="编码" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item
             name="categoryId"
-            label="Category"
+            label="分类"
             rules={[{ required: true }]}
           >
             <Select>
@@ -124,17 +124,17 @@ const FacilityPage: React.FC = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item name="address" label="Address">
+          <Form.Item name="address" label="地址">
             <Input />
           </Form.Item>
-          <Form.Item name="status" label="Status">
+          <Form.Item name="status" label="状态">
             <Select>
-              <Select.Option value="Normal">Normal</Select.Option>
-              <Select.Option value="Warning">Warning</Select.Option>
-              <Select.Option value="Error">Error</Select.Option>
+              <Select.Option value="Normal">正常</Select.Option>
+              <Select.Option value="Warning">告警</Select.Option>
+              <Select.Option value="Error">故障</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="geomJson" label="GeoJSON (Optional)">
+          <Form.Item name="geomJson" label="GeoJSON (可选)">
             <Input.TextArea rows={3} />
           </Form.Item>
         </Form>

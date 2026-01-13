@@ -29,33 +29,33 @@ const MainLayout: React.FC = () => {
     {
       key: "/",
       icon: <DashboardOutlined />,
-      label: "One Map (WebGIS)",
+      label: "一张图 (WebGIS)",
     },
     {
       key: "/monitor/history",
       icon: <BarChartOutlined />,
-      label: "Monitoring Center",
+      label: "监测中心",
     },
     {
       key: "resource-manage",
       icon: <DatabaseOutlined />,
-      label: "Resource Management",
+      label: "资源管理",
       children: [
-        { key: "/resource/facility", label: "Facility Management" },
-        { key: "/resource/category", label: "Category Management" },
+        { key: "/resource/facility", label: "设施管理" },
+        { key: "/resource/category", label: "分类管理" },
       ],
     },
     {
       key: "system-manage",
       icon: <AuditOutlined />,
-      label: "System Management",
+      label: "系统管理",
       children: [
         {
           key: "/system/user",
           icon: <TeamOutlined />,
-          label: "User Management",
+          label: "用户管理",
         },
-        { key: "/system/log", label: "Log Audit" },
+        { key: "/system/log", label: "日志审计" },
       ],
     },
   ];
@@ -83,7 +83,7 @@ const MainLayout: React.FC = () => {
             fontWeight: "bold",
           }}
         >
-          {collapsed ? "WebGIS" : "Water WebGIS System"}
+          {collapsed ? "WebGIS" : "城市水务 WebGIS 系统"}
         </div>
         <Menu
           theme="dark"
@@ -115,10 +115,10 @@ const MainLayout: React.FC = () => {
 
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ marginRight: 16 }}>
-              Welcome, {userInfo?.realName || userInfo?.username || "User"}
+              欢迎, {userInfo?.realName || userInfo?.username || "用户"}
             </span>
             <Button type="link" onClick={handleLogout}>
-              Logout
+              退出登录
             </Button>
           </div>
         </Header>

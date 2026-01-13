@@ -69,17 +69,15 @@ const FacilityPopup: React.FC<Props> = ({
             icon={<LineChartOutlined />}
             onClick={handleViewHistory}
           >
-            View History
+            查看历史
           </Button>,
         ]}
       >
         <Descriptions column={1} size="small">
-          <Descriptions.Item label="Code">{feature.code}</Descriptions.Item>
-          <Descriptions.Item label="Address">
-            {feature.address}
-          </Descriptions.Item>
-          <Descriptions.Item label="Status">{feature.status}</Descriptions.Item>
-          <Descriptions.Item label="Category ID">
+          <Descriptions.Item label="编码">{feature.code}</Descriptions.Item>
+          <Descriptions.Item label="地址">{feature.address}</Descriptions.Item>
+          <Descriptions.Item label="状态">{feature.status}</Descriptions.Item>
+          <Descriptions.Item label="分类ID">
             {feature.category_id}
           </Descriptions.Item>
         </Descriptions>

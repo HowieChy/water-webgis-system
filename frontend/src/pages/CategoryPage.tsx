@@ -69,11 +69,11 @@ const CategoryPage: React.FC = () => {
 
   const columns = [
     { title: "ID", dataIndex: "id" },
-    { title: "Name", dataIndex: "name" },
-    { title: "Icon URL", dataIndex: "iconUrl" },
-    { title: "Sort Order", dataIndex: "sortOrder" },
+    { title: "名称", dataIndex: "name" },
+    { title: "图标", dataIndex: "iconUrl" },
+    { title: "排序", dataIndex: "sortOrder" },
     {
-      title: "Action",
+      title: "操作",
       key: "action",
       render: (_: any, record: any) => (
         <Button
@@ -81,7 +81,7 @@ const CategoryPage: React.FC = () => {
           icon={<EditOutlined />}
           onClick={() => handleEdit(record)}
         >
-          Edit
+          编辑
         </Button>
       ),
     },
@@ -89,10 +89,10 @@ const CategoryPage: React.FC = () => {
 
   return (
     <Card
-      title="Category Management"
+      title="分类管理"
       extra={
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Add Category
+          新增分类
         </Button>
       }
     >
@@ -104,19 +104,19 @@ const CategoryPage: React.FC = () => {
         pagination={false}
       />
       <Modal
-        title={editingId ? "Edit Category" : "Add Category"}
+        title={editingId ? "编辑分类" : "新增分类"}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={() => setIsModalOpen(false)}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label="分类名称" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="iconUrl" label="Icon URL">
+          <Form.Item name="iconUrl" label="图标URL">
             <Input />
           </Form.Item>
-          <Form.Item name="sortOrder" label="Sort Order">
+          <Form.Item name="sortOrder" label="排序">
             <InputNumber style={{ width: "100%" }} />
           </Form.Item>
         </Form>

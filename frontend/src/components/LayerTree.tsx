@@ -22,7 +22,7 @@ const LayerTree: React.FC<Props> = ({ onCheck }) => {
         }));
         setTreeData([
           {
-            title: "Facilities",
+            title: "设施列表",
             key: "all",
             children: nodes,
           },
@@ -49,7 +49,7 @@ const LayerTree: React.FC<Props> = ({ onCheck }) => {
 
   return (
     <Card
-      title="Layer Control"
+      title="图层控制"
       size="small"
       style={{
         position: "absolute",
