@@ -37,6 +37,11 @@ public class FacilityService {
         return Result.success("Saved category");
     }
 
+    public Result<String> deleteCategory(Long id) {
+        categoryMapper.deleteById(id);
+        return Result.success("Deleted category");
+    }
+
     // Water Facility Methods
     public List<WaterFacility> getAllFacilities() {
         return waterFacilityMapper.selectAllWithGeoJSON();

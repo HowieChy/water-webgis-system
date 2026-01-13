@@ -20,10 +20,15 @@ public class FacilityController {
     public Result<List<FacilityCategory>> listCategories() {
         return Result.success(facilityService.getAllCategories());
     }
-    
+
     @PostMapping("/category/save")
     public Result<String> saveCategory(@RequestBody FacilityCategory category) {
         return facilityService.saveCategory(category);
+    }
+
+    @DeleteMapping("/category/{id}")
+    public Result<String> deleteCategory(@PathVariable Long id) {
+        return facilityService.deleteCategory(id);
     }
 
     @GetMapping("/list")
@@ -35,7 +40,7 @@ public class FacilityController {
     public Result<String> saveFacility(@RequestBody WaterFacility facility) {
         return facilityService.saveFacility(facility);
     }
-    
+
     @DeleteMapping("/{id}")
     public Result<String> deleteFacility(@PathVariable Long id) {
         return facilityService.deleteFacility(id);

@@ -1,61 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { Card, Table, Button, Form, Input, Select, Modal, message } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { getFacilities, getCategories, saveFacility } from "../api/facility";
+import { Table, Button, ConfigProvider, Tag, Modal, message } from "antd";
+import { Plus, Trash2 } from "lucide-react";
+import SearchForm from "../components/SearchForm";
+import FacilityDialog from "./FacilityDialog";
+import { getFacilities, getCategories, deleteFacility } from "../api/facility";
 
 const FacilityPage: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  // Dialog state
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [actionType, setActionType] = useState<"create" | "edit">("create");
+  const [currentData, setCurrentData] = useState<any>(null);
 
   useEffect(() => {
-    fetchFacilities();
-    getCategories().then((res: any) => setCategories(res));
+    fetchData();
+    getCategories().then((res: any) => setCategories(res || []));
   }, []);
 
-  const fetchFacilities = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
       const res: any = await getFacilities();
-      setData(res);
+      setData(res || []);
     } catch (e) {
+      console.error(e);
+      message.error("获取设施列表失败");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAdd = () => {
-    setEditingId(null);
-    form.resetFields();
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (record: any) => {
-    setEditingId(record.id);
-    // geomJson is string, need to handle coordinate input if needed.
-    // For simplicity, we assume simple lat/lon or ignore geometry editing in this form or use text.
-    form.setFieldsValue(record);
-    setIsModalOpen(true);
-  };
-
-  const handleOk = async () => {
+  const handleDelete = async (id: number) => {
     try {
-      const values = await form.validateFields();
-      if (editingId) {
-        values.id = editingId;
-      }
-
-      // Construct simple Point GeoJSON if lat/lon provided (Optional)
-      // For now, let's skip complex geom editing in Table, assume it's set via Map or default.
-      // Or allow manual GeoJSON string Input.
-
-      await saveFacility(values);
-      message.success("Saved successfully");
-      setIsModalOpen(false);
-      fetchFacilities();
+      await deleteFacility(id);
+      message.success("删除成功");
+      fetchData();
     } catch (e) {
       console.error(e);
     }
@@ -65,81 +48,118 @@ const FacilityPage: React.FC = () => {
     { title: "名称", dataIndex: "name" },
     { title: "编码", dataIndex: "code" },
     { title: "地址", dataIndex: "address" },
-    { title: "状态", dataIndex: "status" },
     {
-      title: "类型",
+      title: "分类",
       dataIndex: "categoryId",
-      render: (id: number) => categories.find((c) => c.id === id)?.name || id,
+      render: (id: number) => categories.find((c) => c.id === id)?.alias || id,
+    },
+    {
+      title: "状态",
+      dataIndex: "status",
+      render: (status: string) => {
+        let color = "success";
+        let text = "正常";
+        if (status === "Warning") {
+          color = "warning";
+          text = "告警";
+        }
+        if (status === "Error") {
+          color = "error";
+          text = "故障";
+        }
+        return <Tag color={color}>{text}</Tag>;
+      },
     },
     {
       title: "操作",
       key: "action",
+      width: 150,
       render: (_: any, record: any) => (
-        <Button type="link" onClick={() => handleEdit(record)}>
-          编辑
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              setCurrentData(record);
+              setActionType("edit");
+              setDialogVisible(true);
+            }}
+          >
+            编辑
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            danger
+            onClick={() => {
+              Modal.confirm({
+                title: "确认删除",
+                content: `确定要删除设施 "${record.name}" 吗?`,
+                onOk: () => handleDelete(record.id),
+              });
+            }}
+          >
+            删除
+          </Button>
+        </div>
       ),
     },
   ];
 
+  // 简单的搜索配置 (目前后端API还没改分页搜索,这里做个 UI 占位,实际搜索可能需要前端过滤或后端升级)
+  const searchColumns = [
+    { title: "名称", dataIndex: "name", search: true },
+    { title: "编码", dataIndex: "code", search: true },
+  ];
+
   return (
-    <Card
-      title="设施管理"
-      extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          新增设施
-        </Button>
-      }
-    >
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
+    <div className="flex h-full w-full flex-col">
+      <SearchForm
+        columns={searchColumns}
+        onSearch={() => message.info("搜索功能待后端接口升级")}
+        onReset={() => fetchData()}
       />
 
-      <Modal
-        title={editingId ? "编辑设施" : "新增设施"}
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={() => setIsModalOpen(false)}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="名称" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="code" label="编码" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="categoryId"
-            label="分类"
-            rules={[{ required: true }]}
-          >
-            <Select>
-              {categories.map((c) => (
-                <Select.Option key={c.id} value={c.id}>
-                  {c.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item name="address" label="地址">
-            <Input />
-          </Form.Item>
-          <Form.Item name="status" label="状态">
-            <Select>
-              <Select.Option value="Normal">正常</Select.Option>
-              <Select.Option value="Warning">告警</Select.Option>
-              <Select.Option value="Error">故障</Select.Option>
-            </Select>
-          </Form.Item>
-          <Form.Item name="geomJson" label="GeoJSON (可选)">
-            <Input.TextArea rows={3} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Card>
+      <div className="mt-4">
+        <ConfigProvider
+          theme={{
+            token: { colorPrimary: "#0d6ce4" },
+            components: { Button: { borderRadius: 2 } },
+          }}
+        >
+          <div className="mb-4 flex gap-4">
+            <Button
+              type="primary"
+              icon={<Plus className="size-4" />}
+              onClick={() => {
+                setActionType("create");
+                setCurrentData(null);
+                setDialogVisible(true);
+              }}
+            >
+              新增设施
+            </Button>
+            {/* 批量删除预留 */}
+            {/* <Button danger icon={<Trash2 className="size-4" />}>删除</Button> */}
+          </div>
+
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+          />
+
+          <FacilityDialog
+            visible={dialogVisible}
+            setVisible={setDialogVisible}
+            actionType={actionType}
+            currentData={currentData}
+            onSuccess={fetchData}
+          />
+        </ConfigProvider>
+      </div>
+    </div>
   );
 };
 
