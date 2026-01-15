@@ -42,6 +42,11 @@ public class DataInitializer implements CommandLineRunner {
 
         // Initialize Default Facilities
         initFacilities();
+
+        // Initialize Monitoring Data
+        System.out.println(">>> About to call initMonitoringData()");
+        initMonitoringData();
+        System.out.println(">>> Finished initMonitoringData()");
     }
 
     private void initCategories() {
@@ -255,6 +260,89 @@ public class DataInitializer implements CommandLineRunner {
 
         if (count > 0) {
             System.out.println("Initialized " + count + " default facilities.");
+        }
+    }
+
+    @Autowired
+    private com.water.webgis.mapper.MonitoringDataMapper monitoringDataMapper;
+
+    private void initMonitoringData() {
+        System.out.println("=== Starting monitoring data initialization ===");
+        try {
+            // Check if monitoring data already exists
+            long existingCount = monitoringDataMapper.selectCount(null);
+            if (existingCount > 0) {
+                System.out.println("Monitoring data already exists, skipping initialization.");
+                return;
+            }
+
+            // Get all facilities
+            java.util.List<com.water.webgis.entity.WaterFacility> facilities = waterFacilityMapper.selectList(null);
+            System.out.println(
+                    "DEBUG: Found " + (facilities != null ? facilities.size() : 0) + " facilities for monitoring data");
+
+            if (facilities == null || facilities.isEmpty()) {
+                System.out.println("No facilities found, skipping monitoring data initialization.");
+                return;
+            }
+
+            java.util.Random random = new java.util.Random();
+            int count = 0;
+
+            // Create monitoring data for each facility
+            for (com.water.webgis.entity.WaterFacility facility : facilities) {
+                // Create 3-5 monitoring records per facility
+                int recordCount = 3 + random.nextInt(3);
+
+                for (int i = 0; i < recordCount; i++) {
+                    com.water.webgis.entity.MonitoringData data = new com.water.webgis.entity.MonitoringData();
+                    data.setFacilityId(facility.getId());
+                    data.setCategoryId(facility.getCategoryId());
+
+                    // Random water level: 0.5 - 5.0 meters
+                    data.setWaterLevel(new java.math.BigDecimal(0.5 + random.nextDouble() * 4.5)
+                            .setScale(2, java.math.RoundingMode.HALF_UP));
+
+                    // Random flow rate: 0.1 - 10.0 m³/s
+                    data.setFlowRate(new java.math.BigDecimal(0.1 + random.nextDouble() * 9.9)
+                            .setScale(2, java.math.RoundingMode.HALF_UP));
+
+                    // Random switch status
+                    data.setSwitchStatus(random.nextInt(2));
+
+                    // Random remark
+                    if (random.nextInt(3) == 0) {
+                        String[] remarks = {
+                                "设备运行正常",
+                                "定期维护检查",
+                                "水位略高，需关注",
+                                "流量稳定",
+                                "已完成巡检"
+                        };
+                        data.setRemark(remarks[random.nextInt(remarks.length)]);
+                    }
+
+                    // Random collect time in the past 30 days
+                    long now = System.currentTimeMillis();
+                    long daysAgo = (long) (random.nextDouble() * 30 * 24 * 60 * 60 * 1000);
+                    data.setCollectTime(new java.util.Date(now - daysAgo));
+                    data.setCreateTime(new java.util.Date());
+
+                    try {
+                        monitoringDataMapper.insert(data);
+                        count++;
+                    } catch (Exception e) {
+                        System.err.println("Failed to insert monitoring data: " + e.getMessage());
+                    }
+                }
+            }
+
+            if (count > 0) {
+                System.out.println("Initialized " + count + " monitoring data records.");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR in initMonitoringData: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

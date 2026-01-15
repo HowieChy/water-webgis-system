@@ -3,17 +3,22 @@ import "ol/ol.css";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import XYZ from "ol/source/XYZ";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { fromLonLat } from "ol/proj";
 import { Feature } from "ol";
-import { Style, Circle, Fill, Stroke } from "ol/style";
+import { Style, Icon } from "ol/style";
 import GeoJSON from "ol/format/GeoJSON";
+import { defaults as defaultControls } from "ol/control";
+import Overlay from "ol/Overlay";
 import FacilityPopup from "./FacilityPopup";
 import LayerTree from "./LayerTree";
-import { getFacilities } from "../api/facility";
-import { message } from "antd";
+import { getFacilities, getCategories } from "../api/facility";
+import { message, Radio } from "antd";
+
+// Tianditu Token - Replace with your own key or use a public one
+const TDT_TOKEN = "026750369f36c001c8d3ae9352e3857b"; // Free key for demo
 
 const MapContainer: React.FC = () => {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -22,42 +27,100 @@ const MapContainer: React.FC = () => {
     useState<VectorLayer<VectorSource> | null>(null);
   const [allFeatures, setAllFeatures] = useState<Feature[]>([]);
   const [selectedFeature, setSelectedFeature] = useState<any>(null);
-  const [popupPosition, setPopupPosition] = useState<[number, number] | null>(
-    null
+  const [categories, setCategories] = useState<any[]>([]);
+  const [baseMapType, setBaseMapType] = useState<"vector" | "satellite">(
+    "vector"
   );
+  const [tiandituLayers, setTiandituLayers] = useState<{
+    vec: TileLayer<XYZ>;
+    cva: TileLayer<XYZ>;
+    img: TileLayer<XYZ>;
+    cia: TileLayer<XYZ>;
+  } | null>(null);
 
   // Initialize Map
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const osmLayer = new TileLayer({
-      source: new OSM(),
+    // Tianditu Layers
+    const vecLayer = new TileLayer({
+      source: new XYZ({
+        url: `http://t{0-7}.tianditu.gov.cn/vec_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=vec&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TDT_TOKEN}`,
+      }),
+      visible: true,
+    });
+
+    const cvaLayer = new TileLayer({
+      source: new XYZ({
+        url: `http://t{0-7}.tianditu.gov.cn/cva_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cva&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TDT_TOKEN}`,
+      }),
+      visible: true,
+    });
+
+    const imgLayer = new TileLayer({
+      source: new XYZ({
+        url: `http://t{0-7}.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TDT_TOKEN}`,
+      }),
+      visible: false,
+    });
+
+    const ciaLayer = new TileLayer({
+      source: new XYZ({
+        url: `http://t{0-7}.tianditu.gov.cn/cia_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=cia&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=${TDT_TOKEN}`,
+      }),
+      visible: false,
     });
 
     const vSource = new VectorSource();
     const vLayer = new VectorLayer({
       source: vSource,
-      style: new Style({
-        image: new Circle({
-          radius: 6,
-          fill: new Fill({ color: "#1890ff" }),
-          stroke: new Stroke({ color: "white", width: 2 }),
-        }),
-      }),
+      // Style will be set dynamically usually, but here we can use a style function
+      style: (feature) => {
+        const props = feature.getProperties();
+        const iconName = props.categoryIcon || "map-wsj.png"; // Default icon
+        return new Style({
+          image: new Icon({
+            src: `/textures/gis/${iconName}`,
+            scale: 0.4,
+            anchor: [0.5, 1],
+          }),
+        });
+      },
     });
 
     const initialMap = new Map({
       target: mapRef.current,
-      layers: [osmLayer, vLayer],
+      layers: [vecLayer, cvaLayer, imgLayer, ciaLayer, vLayer],
       view: new View({
-        center: fromLonLat([120.15, 30.28]),
-        zoom: 12,
+        center: fromLonLat([121.716, 29.956]), // Zhenhai District
+        zoom: 13,
       }),
+      controls: defaultControls({ zoom: false }), // We can customize controls
     });
+
+    // Create Tooltip Overlay
+    const tooltipElement = document.getElementById("map-tooltip");
+    let tooltipOverlay: Overlay | null = null;
+    if (tooltipElement) {
+      tooltipOverlay = new Overlay({
+        element: tooltipElement,
+        offset: [10, 0],
+        positioning: "bottom-left",
+        stopEvent: false, // Allow click through
+      });
+      initialMap.addOverlay(tooltipOverlay);
+    }
 
     setMap(initialMap);
     setVectorLayer(vLayer);
+    setTiandituLayers({
+      vec: vecLayer,
+      cva: cvaLayer,
+      img: imgLayer,
+      cia: ciaLayer,
+    });
 
+    // Click interaction
     initialMap.on("singleclick", (evt) => {
       const feature = initialMap.forEachFeatureAtPixel(
         evt.pixel,
@@ -65,12 +128,42 @@ const MapContainer: React.FC = () => {
       );
       if (feature) {
         const props = feature.getProperties();
-        // Filter out geometry or internal OpenLayers props if needed
         setSelectedFeature(props);
-        setPopupPosition(evt.coordinate as [number, number]);
       } else {
         setSelectedFeature(null);
-        setPopupPosition(null);
+      }
+    });
+
+    // Hover interaction for Tooltip
+    initialMap.on("pointermove", (evt) => {
+      if (evt.dragging) {
+        if (tooltipOverlay) tooltipOverlay.setPosition(undefined);
+        return;
+      }
+
+      const pixel = initialMap.getEventPixel(evt.originalEvent);
+      const feature = initialMap.forEachFeatureAtPixel(
+        pixel,
+        (feature) => feature
+      );
+
+      const element = tooltipOverlay?.getElement();
+      const targetElement = initialMap.getTargetElement();
+
+      if (feature && element) {
+        const props = feature.getProperties();
+        const name = props.name || "未知设施";
+
+        element.style.display = "block";
+        element.innerHTML = name;
+        tooltipOverlay?.setPosition(evt.coordinate);
+
+        // Change cursor
+        if (targetElement) targetElement.style.cursor = "pointer";
+      } else {
+        if (element) element.style.display = "none";
+        if (tooltipOverlay) tooltipOverlay.setPosition(undefined);
+        if (targetElement) targetElement.style.cursor = "";
       }
     });
 
@@ -79,17 +172,27 @@ const MapContainer: React.FC = () => {
     };
   }, []);
 
+  // Fetch Categories first to create a map of ID -> Icon
+  useEffect(() => {
+    getCategories().then((res: any) => {
+      if (res) {
+        setCategories(res);
+      }
+    });
+  }, []);
+
   // Load Facilities
   useEffect(() => {
     const fetchFacilities = async () => {
       try {
+        if (!categories.length) return; // Wait for categories
+
         const data: any = await getFacilities();
 
         const features: Feature[] = [];
 
         data.forEach((item: any) => {
           if (item.geomJson) {
-            // Parse GeoJSON
             const geometry = new GeoJSON().readGeometry(
               JSON.parse(item.geomJson),
               {
@@ -99,26 +202,54 @@ const MapContainer: React.FC = () => {
             );
 
             const feature = new Feature(geometry);
-            feature.setProperties(item);
+
+            // Find category to get alias/icon
+            const cat = categories.find((c) => c.id === item.categoryId);
+            const extraProps = {
+              categoryName: cat?.alias || cat?.name || "未知",
+              categoryIcon: cat?.icon,
+            };
+
+            feature.setProperties({ ...item, ...extraProps });
             features.push(feature);
           }
         });
 
         setAllFeatures(features);
-        // Initially show all
         if (vectorLayer) {
-          vectorLayer.getSource()?.addFeatures(features);
+          const source = vectorLayer.getSource();
+          source?.clear();
+          source?.addFeatures(features);
         }
       } catch (e) {
         console.error(e);
-        message.error("Failed to load facilities");
+        message.error("加载设施数据失败");
       }
     };
 
-    if (map && vectorLayer) {
+    if (map && vectorLayer && categories.length > 0) {
       fetchFacilities();
     }
-  }, [map, vectorLayer]);
+  }, [map, vectorLayer, categories]);
+
+  // Handle Base Map Switch
+  const changeBaseMap = (type: "vector" | "satellite") => {
+    if (!tiandituLayers) return;
+    setBaseMapType(type);
+
+    const { vec, cva, img, cia } = tiandituLayers;
+    if (type === "vector") {
+      vec.setVisible(true);
+      cva.setVisible(true);
+      img.setVisible(false);
+      cia.setVisible(false);
+    } else {
+      vec.setVisible(false);
+      cva.setVisible(false);
+      img.setVisible(true);
+      cia.setVisible(true);
+    }
+  };
 
   const handleLayerCheck = (checkedKeys: React.Key[]) => {
     if (!vectorLayer) return;
@@ -128,14 +259,12 @@ const MapContainer: React.FC = () => {
 
     source.clear();
 
-    // Filter features
-    // keys are category IDs (numbers) or strings depending on Tree component
-    // Our IDs are likely numbers, Tree keys might be strings/numbers.
     const activeIds = checkedKeys.map((k) => String(k));
 
     const filtered = allFeatures.filter((f) => {
       const catId = f.get("categoryId");
-      return activeIds.includes(String(catId));
+      // Check if "all" is selected or specific category
+      return activeIds.includes(String(catId)) || activeIds.includes("all");
     });
 
     source.addFeatures(filtered);
@@ -145,19 +274,35 @@ const MapContainer: React.FC = () => {
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
 
+      {/* Layer Switcher Control */}
+      <div className="absolute right-4 bottom-8 z-10 rounded-md bg-white p-2 shadow-md">
+        <Radio.Group
+          value={baseMapType}
+          onChange={(e) => changeBaseMap(e.target.value)}
+          buttonStyle="solid"
+          size="small"
+        >
+          <Radio.Button value="vector">标准地图</Radio.Button>
+          <Radio.Button value="satellite">卫星地图</Radio.Button>
+        </Radio.Group>
+      </div>
+
       <LayerTree onCheck={handleLayerCheck} />
 
-      {selectedFeature && popupPosition && map && (
-        <FacilityPopup
-          feature={selectedFeature}
-          position={popupPosition}
-          map={map}
-          onClose={() => {
-            setSelectedFeature(null);
-            setPopupPosition(null);
-          }}
-        />
-      )}
+      {/* Tooltip Element */}
+      <div
+        id="map-tooltip"
+        className="pointer-events-none absolute z-50 rounded bg-[rgba(0,0,0,0.8)] px-2 py-1 text-xs text-white shadow-md transition-opacity duration-200"
+        style={{ display: "none" }}
+      ></div>
+
+      <FacilityPopup
+        feature={selectedFeature}
+        visible={!!selectedFeature}
+        onClose={() => {
+          setSelectedFeature(null);
+        }}
+      />
     </div>
   );
 };

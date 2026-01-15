@@ -1,6 +1,8 @@
 package com.water.webgis.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.water.webgis.common.Result;
 import com.water.webgis.entity.MonitoringData;
 import com.water.webgis.mapper.MonitoringDataMapper;
@@ -26,15 +28,38 @@ public class MonitoringDataService {
             query.le("collect_time", endTime);
         }
         query.orderByAsc("collect_time");
-        
+
         return Result.success(monitoringDataMapper.selectList(query));
     }
-    
+
     public Result<String> saveData(MonitoringData data) {
         if (data.getCollectTime() == null) {
             data.setCollectTime(new Date());
         }
+        if (data.getCreateTime() == null) {
+            data.setCreateTime(new Date());
+        }
         monitoringDataMapper.insert(data);
         return Result.success("Saved");
+    }
+
+    /**
+     * 分页查询监测数据
+     */
+    public Result<IPage<MonitoringData>> getPagedData(int current, int size, Long categoryId, Long facilityId) {
+        Page<MonitoringData> page = new Page<>(current, size);
+        IPage<MonitoringData> result = monitoringDataMapper.selectPageWithCategory(page, categoryId, facilityId);
+        return Result.success(result);
+    }
+
+    /**
+     * 根据ID查询详情
+     */
+    public Result<MonitoringData> getById(Long id) {
+        MonitoringData data = monitoringDataMapper.selectById(id);
+        if (data == null) {
+            return Result.error("数据不存在");
+        }
+        return Result.success(data);
     }
 }

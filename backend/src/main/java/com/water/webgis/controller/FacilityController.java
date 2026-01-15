@@ -1,5 +1,6 @@
 package com.water.webgis.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.water.webgis.common.Result;
 import com.water.webgis.entity.FacilityCategory;
 import com.water.webgis.entity.WaterFacility;
@@ -36,7 +37,20 @@ public class FacilityController {
         return Result.success(facilityService.getAllFacilities());
     }
 
+    /**
+     * 分页查询设施
+     */
+    @GetMapping("/page")
+    public Result<IPage<WaterFacility>> getPagedFacilities(
+            @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword) {
+        return facilityService.getPagedFacilities(current, size, categoryId, keyword);
+    }
+
     @PostMapping("/save")
+    @com.water.webgis.common.annotation.Log("新增/修改设施")
     public Result<String> saveFacility(@RequestBody WaterFacility facility) {
         return facilityService.saveFacility(facility);
     }

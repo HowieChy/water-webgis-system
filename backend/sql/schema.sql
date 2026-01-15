@@ -29,11 +29,19 @@ CREATE INDEX IF NOT EXISTS idx_water_facility_geom ON water_facility USING GIST 
 CREATE TABLE IF NOT EXISTS monitoring_data (
     id BIGSERIAL PRIMARY KEY,
     facility_id BIGINT REFERENCES water_facility(id),
+    category_id BIGINT REFERENCES facility_category(id),
     water_level DECIMAL(10,2),
     flow_rate DECIMAL(10,2),
     switch_status INT DEFAULT 0, -- 1: Open, 0: Closed
-    collect_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    remark VARCHAR(500),
+    collect_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Create index for better query performance
+CREATE INDEX IF NOT EXISTS idx_monitoring_data_facility ON monitoring_data(facility_id);
+CREATE INDEX IF NOT EXISTS idx_monitoring_data_category ON monitoring_data(category_id);
+CREATE INDEX IF NOT EXISTS idx_monitoring_data_time ON monitoring_data(collect_time);
 
 -- 4. System User Table
 CREATE TABLE IF NOT EXISTS sys_user (

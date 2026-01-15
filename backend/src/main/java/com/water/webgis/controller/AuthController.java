@@ -6,6 +6,7 @@ import com.water.webgis.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.water.webgis.common.annotation.Log;
 import java.util.Map;
 
 /**
@@ -27,10 +28,10 @@ public class AuthController {
      * @param session HTTP Session,用于获取验证码
      * @return 登录结果,包含 token 和用户信息
      */
-    // @RateLimit 注解已注释,开发环境不限流,生产环境需取消注释
     // @com.water.webgis.annotation.RateLimit(key = 1, time = 60, count = 5) //
     // 60秒内最多5次请求
     @PostMapping("/login")
+    @Log("用户登录")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> body,
             jakarta.servlet.http.HttpSession session) {
         // 从请求体中获取用户名、密码和验证码

@@ -1,5 +1,8 @@
 package com.water.webgis.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.water.webgis.common.Result;
 import com.water.webgis.entity.FacilityCategory;
 import com.water.webgis.entity.WaterFacility;
@@ -45,6 +48,30 @@ public class FacilityService {
     // Water Facility Methods
     public List<WaterFacility> getAllFacilities() {
         return waterFacilityMapper.selectAllWithGeoJSON();
+    }
+
+    /**
+     * 分页查询设施
+     */
+    public Result<IPage<WaterFacility>> getPagedFacilities(int current, int size, Long categoryId, String keyword) {
+        Page<WaterFacility> page = new Page<>(current, size);
+        QueryWrapper<WaterFacility> query = new QueryWrapper<>();
+
+        if (categoryId != null) {
+            query.eq("category_id", categoryId);
+        }
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.and(wrapper -> wrapper
+                    .like("name", keyword)
+                    .or()
+                    .like("code", keyword));
+        }
+
+        query.orderByDesc("create_time");
+
+        IPage<WaterFacility> result = waterFacilityMapper.selectPage(page, query);
+        return Result.success(result);
     }
 
     @Transactional

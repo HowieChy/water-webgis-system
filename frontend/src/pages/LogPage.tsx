@@ -46,32 +46,61 @@ const LogPage: React.FC = () => {
   };
 
   const handleSearch = (values: any) => {
-    setSearchOp(values.operation);
-    fetchData(1, 10, values.operation);
+    const op = values.operation;
+    setSearchOp(op);
+    fetchData(1, 10, op);
   };
 
   const columns = [
-    { title: "ID", dataIndex: "id" },
-    { title: "用户ID", dataIndex: "userId" },
-    { title: "操作内容", dataIndex: "operation" },
-    { title: "请求方法", dataIndex: "method", ellipsis: true },
-    { title: "IP地址", dataIndex: "ipAddr" },
+    { title: "日志ID", dataIndex: "id", width: 80, align: "center" as const },
     {
-      title: "操作时间",
+      title: "系统用户ID",
+      dataIndex: "userId",
+      width: 100,
+      align: "center" as const,
+    },
+    { title: "操作类型", dataIndex: "operation" },
+    {
+      title: "操作方法名",
+      dataIndex: "method",
+      ellipsis: true,
+      render: (text: string) => (
+        <span className="text-gray-500 font-mono text-xs" title={text}>
+          {text}
+        </span>
+      ),
+    },
+    { title: "请求IP地址", dataIndex: "ipAddr", width: 140 },
+    {
+      title: "记录生成时间",
       dataIndex: "createTime",
+      width: 180,
       render: (t: string) => dayjs(t).format("YYYY-MM-DD HH:mm:ss"),
     },
   ];
 
   return (
-    <Card title="系统日志审计">
+    <Card
+      title="系统日志审计"
+      className="shadow-sm"
+      extra={
+        <span className="text-gray-400 text-xs">
+          共 {pagination.total} 条记录
+        </span>
+      }
+    >
       <Form
         layout="inline"
         onFinish={handleSearch}
         style={{ marginBottom: 16 }}
       >
-        <Form.Item name="operation">
-          <Input prefix={<SearchOutlined />} placeholder="搜索操作内容" />
+        <Form.Item name="operation" label="关键词">
+          <Input
+            prefix={<SearchOutlined className="text-gray-400" />}
+            placeholder="搜索操作类型或方法名"
+            allowClear
+            style={{ width: 240 }}
+          />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
@@ -84,9 +113,16 @@ const LogPage: React.FC = () => {
         columns={columns}
         dataSource={data}
         rowKey="id"
-        pagination={pagination}
+        pagination={{
+          ...pagination,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total) => `共 ${total} 条`,
+        }}
         loading={loading}
         onChange={handleTableChange}
+        size="middle"
+        bordered
       />
     </Card>
   );
