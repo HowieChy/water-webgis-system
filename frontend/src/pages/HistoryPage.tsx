@@ -77,7 +77,7 @@ const HistoryPage: React.FC = () => {
             });
           }}
         />
-        <div className="flex grow gap-4">
+        <div className="flex grow gap-4 mt-4">
           <LeftCategoryTree data={categories} loading={loading} />
           <RightDataList />
         </div>

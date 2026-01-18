@@ -45,20 +45,6 @@ const RightDataList = () => {
 
   return (
     <div className="flex flex-1 flex-col gap-4 rounded-[10px] bg-white p-5">
-      <div className="flex h-[50px] w-full items-start justify-between border-b border-[#E2EBF6]">
-        <div className="flex items-center gap-2">
-          <div
-            className={cn(
-              "cursor-pointer rounded-[40px] bg-[#F3F8FE] px-4 py-1 text-sm text-[#1A70F9] transition-all duration-300"
-            )}
-          >
-            <span className="select-none font-medium text-[#1A70F9]">
-              监测数据台账
-            </span>
-          </div>
-        </div>
-      </div>
-
       <ScrollArea className="max-h-[calc(100vh-356px)] grow">
         {loading ? (
           <div className="flex size-full min-h-52 items-center justify-center">

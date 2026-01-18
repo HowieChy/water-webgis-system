@@ -59,14 +59,20 @@ const findMatchingKey = (
   return null;
 };
 
+import { useUserStore } from "@/store/userStore";
+
+// ... existing imports
+
 export default function NewSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const userInfo = useUserStore((state) => state.userInfo);
+  const isAdmin = userInfo?.roleType === "ADMIN";
 
   // 菜单配置
-  const menuItems: MenuItem[] = useMemo(
-    () => [
+  const menuItems: MenuItem[] = useMemo(() => {
+    const items: MenuItem[] = [
       {
         key: "dashboard",
         label: <Link to="/">一张图 (WebGIS)</Link>,
@@ -77,39 +83,44 @@ export default function NewSidebar() {
         label: <Link to="/monitor/history">监测中心</Link>,
         icon: <BarChartOutlined />,
       },
-      {
-        key: "resource-manage",
-        label: "资源管理",
-        icon: <DatabaseOutlined />,
-        children: [
-          {
-            key: "facility",
-            label: <Link to="/resource/facility">设施管理</Link>,
-          },
-          {
-            key: "category",
-            label: <Link to="/resource/category">分类管理</Link>,
-          },
-        ],
-      },
-      {
-        key: "system-manage",
-        label: "系统管理",
-        icon: <AuditOutlined />,
-        children: [
-          {
-            key: "user",
-            label: <Link to="/system/user">用户管理</Link>,
-          },
-          {
-            key: "log",
-            label: <Link to="/system/log">日志审计</Link>,
-          },
-        ],
-      },
-    ],
-    []
-  );
+    ];
+
+    if (isAdmin) {
+      items.push(
+        {
+          key: "resource-manage",
+          label: "资源管理",
+          icon: <DatabaseOutlined />,
+          children: [
+            {
+              key: "facility",
+              label: <Link to="/resource/facility">设施管理</Link>,
+            },
+            {
+              key: "category",
+              label: <Link to="/resource/category">分类管理</Link>,
+            },
+          ],
+        },
+        {
+          key: "system-manage",
+          label: "系统管理",
+          icon: <AuditOutlined />,
+          children: [
+            {
+              key: "user",
+              label: <Link to="/system/user">用户管理</Link>,
+            },
+            {
+              key: "log",
+              label: <Link to="/system/log">日志审计</Link>,
+            },
+          ],
+        }
+      );
+    }
+    return items;
+  }, [isAdmin]);
 
   // 计算当前选中的菜单项
   const selectedKey = useMemo(() => {
