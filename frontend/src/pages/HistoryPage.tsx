@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext } from "react";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, theme as antTheme } from "antd";
 import LeftCategoryTree from "./history/components/LeftCategoryTree";
 import RightDataList from "./history/components/RightDataList";
 import SearchForm from "../components/SearchForm";
@@ -51,39 +51,15 @@ const HistoryPage: React.FC = () => {
         setSearchParams,
       }}
     >
-      <div className="flex size-full flex-col p-4">
-        <SearchForm
-          columns={[
-            {
-              title: "设施ID",
-              dataIndex: "facilityId",
-              search: true,
-              valueType: "text",
-            },
-          ]}
-          onSearch={(values) => {
-            setSearchParams({
-              ...searchParams,
-              ...values,
-              current: 1,
-            });
-          }}
-          onReset={() => {
-            setSearchParams({
-              current: 1,
-              size: 12,
-              categoryId: null,
-              facilityId: null,
-            });
-          }}
-        />
-        <div className="flex grow gap-4 mt-4">
-          <LeftCategoryTree data={categories} loading={loading} />
-          <RightDataList />
-        </div>
-      </div>
       <ConfigProvider
         theme={{
+          token: {
+            colorPrimary: "#1A70F9",
+            colorText: "#242A32",
+            borderRadius: 6,
+            fontFamily:
+              "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+          },
           components: {
             DatePicker: {
               colorText: "#242A32",
@@ -91,9 +67,55 @@ const HistoryPage: React.FC = () => {
             Select: {
               colorText: "#242A32",
             },
+            Card: {
+              boxShadowTertiary: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+            },
           },
         }}
-      />
+      >
+        <div className="flex size-full flex-col bg-[#F5F7FA] p-6 lg:p-8">
+          <div className="flex flex-col gap-6 h-full">
+            {/* Header / Search Area */}
+            <div className="flex-none rounded-xl bg-white p-5 shadow-sm border border-slate-100">
+              <SearchForm
+                columns={[
+                  {
+                    title: "设施ID",
+                    dataIndex: "facilityId",
+                    search: true,
+                    valueType: "text",
+                  },
+                ]}
+                onSearch={(values) => {
+                  setSearchParams({
+                    ...searchParams,
+                    ...values,
+                    current: 1,
+                  });
+                }}
+                onReset={() => {
+                  setSearchParams({
+                    current: 1,
+                    size: 9, // Consistent with initial state
+                    categoryId: null,
+                    facilityId: null,
+                  });
+                }}
+              />
+            </div>
+
+            {/* Content Area */}
+            <div className="flex grow gap-6 overflow-hidden">
+              <div className="w-[300px] shrink-0">
+                <LeftCategoryTree data={categories} loading={loading} />
+              </div>
+              <div className="grow overflow-hidden">
+                <RightDataList />
+              </div>
+            </div>
+          </div>
+        </div>
+      </ConfigProvider>
     </HistoryPageContext.Provider>
   );
 };

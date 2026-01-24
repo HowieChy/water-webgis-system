@@ -43,126 +43,114 @@ const RightDataList = () => {
     }
   };
 
+  const renderDataCard = (item: any) => (
+    <div
+      key={item.id}
+      onClick={() => {
+        setCurrentRecord(item);
+        setDetailVisible(true);
+      }}
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-100 hover:shadow-lg hover:shadow-blue-500/5"
+    >
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <h4 className="line-clamp-1 text-base font-bold text-slate-800 group-hover:text-blue-600">
+            {item.facilityName || `设施 #${item.facilityId}`}
+          </h4>
+          <div className="flex items-center gap-2">
+            {item.facilityCode && (
+              <span className="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs font-medium text-slate-500">
+                {item.facilityCode}
+              </span>
+            )}
+            <span className="text-xs text-slate-400">
+              {item.collectTime
+                ? dayjs(item.collectTime).format("YYYY-MM-DD HH:mm")
+                : "-"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Metrics Grid */}
+      <div className="mt-auto grid grid-cols-2 gap-4 rounded-lg bg-slate-50 p-3 transition-colors group-hover:bg-blue-50/30">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-slate-500">水位 (m)</span>
+          <span className="font-mono text-xl font-bold text-slate-700">
+            {item.waterLevel !== undefined && item.waterLevel !== null
+              ? item.waterLevel.toFixed(2)
+              : "-"}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1 border-l border-slate-200 pl-4 transition-colors group-hover:border-blue-100">
+          <span className="text-xs text-slate-500">流量 (m³/s)</span>
+          <span className="font-mono text-xl font-bold text-slate-700">
+            {item.flowRate !== undefined && item.flowRate !== null
+              ? item.flowRate.toFixed(2)
+              : "-"}
+          </span>
+        </div>
+      </div>
+
+      {/* Decorative */}
+      <div className="absolute top-0 right-0 h-16 w-16 -translate-y-8 translate-x-8 rounded-full bg-slate-50 opacity-0 transition-opacity group-hover:opacity-100" />
+    </div>
+  );
+
   return (
-    <div className="flex flex-1 flex-col gap-4 rounded-[10px] bg-white p-5">
-      <ScrollArea className="max-h-[calc(100vh-356px)] grow">
+    <div className="flex size-full flex-col gap-4">
+      <ScrollArea className="flex-1">
         {loading ? (
-          <div className="flex size-full min-h-52 items-center justify-center">
-            <Spin />
+          <div className="flex size-full min-h-[400px] items-center justify-center">
+            <Spin size="large" />
           </div>
         ) : (
           <>
             {data?.length > 0 ? (
-              <ul className="grid size-full grid-cols-3 gap-4">
-                {data?.map((item: any) => (
-                  <li
-                    key={item.id}
-                    onClick={() => {
-                      setCurrentRecord(item);
-                      setDetailVisible(true);
-                    }}
-                    className="flex h-[180px] cursor-pointer flex-col gap-4 rounded-[5px] border border-[#F2F3F5] p-5 transition-all duration-100 ease-linear hover:border-[#86909C]/30 hover:shadow-sm"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="text-base font-medium text-[#1C2A32]">
-                          {item.facilityName || `设施 #${item.facilityId}`}
-                        </div>
-                        <div className="text-xs text-[#86909C]">
-                          {item.facilityCode && (
-                            <span className="mr-2">{item.facilityCode}</span>
-                          )}
-                          {item.collectTime
-                            ? dayjs(item.collectTime).format("YYYY-MM-DD HH:mm")
-                            : "-"}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 rounded-[5px] bg-[#F1F3F8]/50 p-4">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="flex flex-col">
-                          <span className="text-xs text-[#86909C]">
-                            水位 (m)
-                          </span>
-                          <span className="text-lg font-medium text-[#4E5969]">
-                            {item.waterLevel?.toFixed(2) || "-"}
-                          </span>
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-xs text-[#86909C]">
-                            流量 (m³/s)
-                          </span>
-                          <span className="text-lg font-medium text-[#4E5969]">
-                            {item.flowRate?.toFixed(2) || "-"}
-                          </span>
-                        </div>
-                        {/* <div className="flex flex-col">
-                          <span className="text-xs text-[#86909C]">
-                            开关状态
-                          </span>
-                          <span className="text-lg font-medium text-[#4E5969]">
-                            {item.switchStatus === 1 ? "开启" : "关闭"}
-                          </span>
-                        </div> */}
-                        {/* {item.remark && (
-                          <div className="col-span-2 flex flex-col">
-                            <span className="text-xs text-[#86909C]">备注</span>
-                            <span className="truncate text-sm text-[#4E5969]">
-                              {item.remark}
-                            </span>
-                          </div>
-                        )} */}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid grid-cols-1 gap-4 pr-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+                {data.map(renderDataCard)}
+              </div>
             ) : (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="暂无数据"
-              />
+              <div className="flex size-full min-h-[400px] items-center justify-center rounded-xl bg-white border border-dashed border-slate-200">
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={
+                    <span className="text-slate-400">暂无监测数据</span>
+                  }
+                />
+              </div>
             )}
           </>
         )}
       </ScrollArea>
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end rounded-xl bg-white p-3 shadow-sm border border-slate-100">
         <ConfigProvider
           theme={{
             token: {
               colorPrimary: "#1A70F9",
             },
-            components: {
-              Pagination: {
-                itemActiveBg: "#F0F5FF",
-                borderRadius: 2,
-              },
-            },
           }}
         >
-          {total > (searchParams.size || 9) && (
-            <Pagination
-              current={searchParams.current || 1}
-              showTotal={(total) => (
-                <span className="text-sm text-[#1C2A32]">{`共${total}条`}</span>
-              )}
-              disabled={loading}
-              pageSize={searchParams.size || 9}
-              onChange={(page, pageSize) => {
-                setSearchParams({
-                  ...searchParams,
-                  current: page,
-                  size: pageSize,
-                });
-              }}
-              showSizeChanger={false}
-              size="small"
-              total={total}
-              className="[&_.ant-pagination-item-active]:border-none"
-            />
-          )}
+          <Pagination
+            current={searchParams.current || 1}
+            showTotal={(total) => (
+              <span className="text-slate-500">{`共 ${total} 条数据`}</span>
+            )}
+            disabled={loading}
+            pageSize={searchParams.size || 9}
+            onChange={(page, pageSize) => {
+              setSearchParams({
+                ...searchParams,
+                current: page,
+                size: pageSize,
+              });
+            }}
+            showSizeChanger={false}
+            size="default" // Changed from small for better elegance
+            total={total}
+          />
         </ConfigProvider>
       </div>
 

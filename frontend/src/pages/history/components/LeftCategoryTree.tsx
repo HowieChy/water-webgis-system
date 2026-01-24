@@ -1,8 +1,8 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ConfigProvider, Skeleton, Tree } from "antd";
+import { ConfigProvider, Skeleton, Tree, theme } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
 import { cn } from "@/lib/utils";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { HistoryPageContext } from "../../HistoryPage";
 
 const LeftCategoryTree = ({
@@ -13,6 +13,7 @@ const LeftCategoryTree = ({
   loading: boolean;
 }) => {
   const { searchParams, setSearchParams } = useContext(HistoryPageContext);
+  const { token } = theme.useToken();
 
   // 只显示特定分类：泵站、雨水口、排放口、污水处理厂
   const allowedCategories = [
@@ -31,6 +32,11 @@ const LeftCategoryTree = ({
     const allNode: TreeDataNode = {
       title: "全部分类",
       key: "all",
+      icon: (
+        <span className="inline-flex size-4 items-center justify-center rounded-full bg-slate-100 text-[10px] text-slate-500 group-selected:bg-blue-100 group-selected:text-blue-600">
+          A
+        </span>
+      ),
     };
 
     const categoryNodes: TreeDataNode[] = filteredData.map((cat: any) => ({
@@ -62,34 +68,31 @@ const LeftCategoryTree = ({
   };
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Tree: {
-            nodeSelectedBg: "#F0F5FF",
-            nodeSelectedColor: "#1A70F9",
-            directoryNodeSelectedColor: "#1A70F9",
-            nodeHoverColor: "#1A70F9",
-            colorText: "#4E5969",
-          },
-        },
-      }}
-    >
-      <div className="flex h-full w-[280px] flex-col gap-3 rounded-[10px] bg-white p-5">
-        <div className="flex items-center gap-1.5 border-b border-[#E2EBF6] pb-4">
-          <div
-            className={cn(
-              "cursor-pointer rounded-[40px] bg-[#F3F8FE] px-4 py-1 text-sm text-[#1A70F9] transition-all duration-300"
-            )}
-          >
-            <span className="select-none font-medium">设施分类</span>
-          </div>
+    <div className="flex h-full w-full flex-col gap-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <h3 className="text-base font-semibold text-slate-800">设施分类</h3>
+        <div className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">
+          {filteredData.length}
         </div>
-        {loading ? (
-          <Skeleton active />
-        ) : (
-          <ScrollArea className="max-h-[calc(100vh-348px)] flex-grow">
+      </div>
+
+      {loading ? (
+        <Skeleton active paragraph={{ rows: 6 }} title={false} />
+      ) : (
+        <ScrollArea className="flex-grow">
+          <ConfigProvider
+            theme={{
+              components: {
+                Tree: {
+                  directoryNodeSelectedBg: "#eff6ff",
+                  nodeSelectedBg: "#eff6ff",
+                  nodeHoverBg: "#f8fafc",
+                },
+              },
+            }}
+          >
             <Tree
+              blockNode
               onSelect={(selectedKeys, info) => {
                 if (selectedKeys.length === 0) {
                   return;
@@ -102,15 +105,32 @@ const LeftCategoryTree = ({
                   ? [searchParams.categoryId.toString()]
                   : ["all"]
               }
-              className={cn(
-                "[&_.ant-tree-node-content-wrapper-normal]:flex-1 [&_.ant-tree-treenode-leaf]:flex [&_.ant-tree-treenode-leaf]:w-full [&_.ant-tree-treenode]:flex [&_.ant-tree-treenode]:w-full",
-                "[&_.ant-tree-node-content-wrapper]:flex-1 [&_.ant-tree-node-selected]:rounded-[3px]"
-              )}
+              titleRender={(node) => {
+                const isSelected =
+                  searchParams?.categoryId?.toString() === node.key ||
+                  (searchParams?.categoryId === null && node.key === "all");
+
+                return (
+                  <div
+                    className={cn(
+                      "group flex items-center py-1.5 transition-colors",
+                      isSelected
+                        ? "text-blue-600 font-medium"
+                        : "text-slate-600"
+                    )}
+                  >
+                    <span className="text-sm">
+                      {node.title as React.ReactNode}
+                    </span>
+                  </div>
+                );
+              }}
+              className="[&_.ant-tree-node-content-wrapper]:px-2 [&_.ant-tree-node-content-wrapper]:rounded-md [&_.ant-tree-treenode]:py-1"
             />
-          </ScrollArea>
-        )}
-      </div>
-    </ConfigProvider>
+          </ConfigProvider>
+        </ScrollArea>
+      )}
+    </div>
   );
 };
 
